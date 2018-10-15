@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import requests
+from geojson import Feature, Point
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,8 +28,11 @@ def getTrainStation(raw_message):
 	i = 0
 	while data[i]['type'] != "stop":
 		i = i + 1
-	stop = data[i]
-	print(stop) 
+	raw_station = data[i]
+	print(raw_station ) 
+	station_geometry = Point((raw_station['location']['longitude'], raw_station['location']['latitude']))
+	station = Feature(geometry=station_geometry, properties={'name': raw_station['name'], 'rawValue': raw_message})
+	print(station) 
 	# print(data[i]['name'])
 
 
