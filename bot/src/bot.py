@@ -1,5 +1,12 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
+
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 

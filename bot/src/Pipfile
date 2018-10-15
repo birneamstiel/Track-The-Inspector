@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 python-telegram-bot = "==11.1.0"
+python-dotenv = "==0.9.1"
 [dev-packages]
 
 [requires]
