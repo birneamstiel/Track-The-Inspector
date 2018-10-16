@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .marker {
+          background-image: url({{ url_for('static', filename='mapbox-icon.png') }});
+          background-size: cover;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        h1   {color: blue;}
+        p    {color: red;}
+    </style>
+    <meta charset='utf-8' />
+    <title>Draw GeoJSON points</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+mapboxgl.accessToken = '{{ mapboxToken }}';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/sakkul/cjljcs6ie2eck2ro01qgmzdao',
+    center: [13.429, 52.520],
+    zoom: 10.5
+});
+
+map.on('load', function () {
+    geojson = {
+        "id": "points",
+        "type": "symbol",
+        "source": {
+            "type": "geojson",
+            "data": {
+                "type": "FeatureCollection",
+                "features": [
+                {% for inspector in inspectors %}
+                    {{ inspector.geoJson | safe }},
+                {% endfor %}
+                ]
+            }
+        },
+        "layout": {
+            "icon-image": "{icon}-15",
+            "text-field": "{title}",
+            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+            "text-offset": [0, 0.6],
+            "text-anchor": "top"
+        }
+    };
+    // add markers to map
+    geojson.source.data.features.forEach(function(marker) {
+
+      // create a HTML element for each feature
+      var el = document.createElement('div');
+      el.className = 'marker';
+
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+      .setLngLat(marker.geometry.coordinates)
+      .addTo(map);
+    });
+    map.addLayer(geojson);
+});
+</script>
+
+</body>
+</html>
