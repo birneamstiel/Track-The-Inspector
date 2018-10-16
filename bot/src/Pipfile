@@ -8,6 +8,7 @@ python-telegram-bot = "==11.1.0"
 python-dotenv = "==0.9.1"
 requests = "==2.19.1"
 geojson = "==2.4.0"
+tinydb = "*"
 [dev-packages]
 
 [requires]

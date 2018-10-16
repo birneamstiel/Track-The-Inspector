@@ -3,8 +3,12 @@ import logging
 import os
 import sys
 import requests
+import time
+import json
 from geojson import Feature, Point
 from dotenv import load_dotenv
+from tinydb import TinyDB, Query
+db = TinyDB('db.json')
 
 load_dotenv()
 TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
@@ -33,7 +37,11 @@ def getTrainStation(raw_message):
 	station_geometry = Point((raw_station['location']['longitude'], raw_station['location']['latitude']))
 	station = Feature(geometry=station_geometry, properties={'name': raw_station['name'], 'rawValue': raw_message})
 	print(station) 
-	# print(data[i]['name'])
+	
+	data = {}
+	data['geoJson'] = station
+	data['timestamp'] = time.time()
+	db.insert(data)
 
 
 updater = Updater(TELEGRAM_API_KEY)
