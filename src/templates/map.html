@@ -3,12 +3,12 @@
 <head>
     <style>
         .marker {
-          background-image: url({{ url_for('static', filename='mapbox-icon.png') }});
-          background-size: cover;
-          width: 50px;
-          height: 50px;
+          background-color: red;
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
           cursor: pointer;
+          border: 3px solid black;
         }
         h1   {color: blue;}
         p    {color: red;}
@@ -64,6 +64,11 @@ map.on('load', function () {
       // create a HTML element for each feature
       var el = document.createElement('div');
       el.className = 'marker';
+      
+      // take relevance into account 
+      alpha = marker.properties.relevance / 100
+      el.style.backgroundColor = `rgba(255, 0, 0, ${alpha})`
+      
 
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
