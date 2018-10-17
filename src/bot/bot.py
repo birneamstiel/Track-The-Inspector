@@ -8,7 +8,7 @@ import json
 from geojson import Feature, Point
 from dotenv import load_dotenv
 from tinydb import TinyDB, Query
-db = TinyDB('db.json')
+db = TinyDB('../db.json')
 
 load_dotenv()
 TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
