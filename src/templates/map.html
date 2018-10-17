@@ -11,7 +11,20 @@
           border: 3px solid black;
         }
         h1   {color: blue;}
-        p    {color: red;}
+        
+        .raw {font-family: "Menlo","DejaVu Sans Mono","Liberation Mono","Consolas","Ubuntu Mono","Courier New","andale mono","lucida console",monospace;}
+        p.raw {
+          background-color: rgba(95,131,65,0.1);
+          color: #5f8341;
+        }
+        .mapboxgl-popup {
+          max-width: 200px;
+        }
+
+        .mapboxgl-popup-content {
+          text-align: center;
+          font-family: 'Open Sans', sans-serif;
+        }
     </style>
     <meta charset='utf-8' />
     <title>Draw GeoJSON points</title>
@@ -73,6 +86,8 @@ map.on('load', function () {
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
       .setLngLat(marker.geometry.coordinates)
+      .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+      .setHTML('<h3>' + marker.properties.name + '</h3><p class="raw">' + marker.properties.rawValue + '</p>'))
       .addTo(map);
     });
     map.addLayer(geojson);
