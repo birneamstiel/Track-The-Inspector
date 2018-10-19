@@ -22,12 +22,14 @@ if not TELEGRAM_API_KEY:
 
 
 @app.route('/')
-def hello_world():
+def get_inspectors():
 	inspectors = db.all()
 
 	for inspector in inspectors:
-		relevance = get_relevance_from_time_passed(time.time() - inspector['timestamp'])
+		passed_time = time.time() - inspector['timestamp']
+		relevance = get_relevance_from_time_passed(passed_time)
 		inspector['geoJson']['properties']['relevance'] = relevance
+		inspector['geoJson']['properties']['passedTime'] = passed_time
 		print (relevance)
 
 		handle_inspector(inspector)
