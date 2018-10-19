@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from tinydb import TinyDB, Query
 from dotenv import load_dotenv
 import os
+import sys
 import time
 import requests
 from geojson import Feature, Point
@@ -9,6 +10,8 @@ from geojson import Feature, Point
 app = Flask(__name__)
 db = TinyDB('db.json')
 
+print(__file__)
+#print(sys.path.dirname(sys.path.dirname(__file__)))
 load_dotenv()
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
@@ -29,7 +32,6 @@ def hello_world():
 
 		handle_inspector(inspector)
 	return render_template('map.html', inspectors=inspectors, mapboxToken=MAPBOX_TOKEN)
-	
 
 @app.route("/{}".format(TELEGRAM_API_KEY), methods=["POST"])
 def process_update():
@@ -51,15 +53,16 @@ def getTrainStation(raw_message):
 	while data[i]['type'] != "stop":
 		i = i + 1
 	raw_station = data[i]
-	print(raw_station ) 
+	print(raw_station )
 	station_geometry = Point((raw_station['location']['longitude'], raw_station['location']['latitude']))
 	station = Feature(geometry=station_geometry, properties={'name': raw_station['name'], 'rawValue': raw_message})
-	print('inserting: ', station) 
+	print('inserting: ', station)
 	
 	data = {}
 	data['geoJson'] = station
 	data['timestamp'] = time.time()
 	db.insert(data)
+
 
 def handle_inspector(inspector):
 	print(inspector['geoJson'])
