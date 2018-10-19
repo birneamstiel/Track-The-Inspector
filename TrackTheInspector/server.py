@@ -24,16 +24,20 @@ if not TELEGRAM_API_KEY:
 @app.route('/')
 def get_inspectors():
 	inspectors = db.all()
-
+	relevant_inspectors = []
 	for inspector in inspectors:
 		passed_time = time.time() - inspector['timestamp']
 		relevance = get_relevance_from_time_passed(passed_time)
+		
 		inspector['geoJson']['properties']['relevance'] = relevance
 		inspector['geoJson']['properties']['passedTime'] = passed_time
 		print (relevance)
 
 		handle_inspector(inspector)
-	return render_template('map.html', inspectors=inspectors, mapboxToken=MAPBOX_TOKEN)
+		# only show recent inspectors
+		if relevance > 0:
+			relevant_inspectors.append(inspector)
+	return render_template('map.html', inspectors=relevant_inspectors, mapboxToken=MAPBOX_TOKEN)
 
 @app.route("/{}".format(TELEGRAM_API_KEY), methods=["POST"])
 def process_update():
@@ -70,8 +74,11 @@ def handle_inspector(inspector):
 	print(inspector['geoJson'])
 
 def get_relevance_from_time_passed(time_passed):
+	# three hours 
+	if time_passed > 10800:
+		return 0
 	# two hours 
-	if time_passed > 7200:
+	elif time_passed > 7200:
 		return 10
 	elif time_passed > 3600:
 		return 20
