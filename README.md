@@ -1,7 +1,7 @@
 Track the Inspector
 ==============================================
 
-Installation
+Installing the telegram bot locally
 ------------
 first, make sure you have pipenv isntalled (`brew install pipenv` if on MacOS) or have a look [here](https://docs.pipenv.org/install/)
 
