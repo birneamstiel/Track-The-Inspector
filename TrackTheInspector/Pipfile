@@ -11,6 +11,7 @@ geojson = "==2.4.0"
 flask = "*"
 tinydb = "*"
 fuzzywuzzy = "*"
+python-Levenshtein = "*"
 
 [dev-packages]
 

@@ -15,8 +15,6 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 db = TinyDB('db.json')
 
-print(__file__)
-# print(sys.path.dirname(sys.path.dirname(__file__)))
 load_dotenv()
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
