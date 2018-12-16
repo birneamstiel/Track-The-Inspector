@@ -12,9 +12,11 @@ from fuzzywuzzy import fuzz
 from flask import Flask, render_template, request
 from tinydb import TinyDB, Query
 
-app = Flask(__name__)
-db = TinyDB('db.json')
 this_directory = os.path.dirname(__file__)
+db_path = os.path.join(this_directory, './db.json')
+app = Flask(__name__)
+db = TinyDB(db_path)
+
 
 load_dotenv()
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
