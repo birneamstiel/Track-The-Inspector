@@ -1,0 +1,15 @@
+{
+  "name": "track-the-inspector-data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "getData.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "birneamstiel",
+  "license": "ISC",
+  "dependencies": {
+    "vbb-lines": "^4.3.0",
+    "vbb-stations": "^6.7.0"
+  }
+}
