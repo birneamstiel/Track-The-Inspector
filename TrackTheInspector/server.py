@@ -14,6 +14,7 @@ from tinydb import TinyDB, Query
 
 app = Flask(__name__)
 db = TinyDB('db.json')
+this_directory = os.path.dirname(__file__)
 
 load_dotenv()
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
@@ -98,7 +99,8 @@ def cleanseInput(raw_message):
     # transform to upper case
     line = line.upper()
 
-    data_path = "./data/lines.json"
+
+    data_path = os.path.join(this_directory, './data/lines.json')
     with open(data_path) as file:
         static_data = json.load(file)
     stations = static_data[line]
