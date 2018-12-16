@@ -1,14 +1,16 @@
-from flask import Flask, render_template, request
-from tinydb import TinyDB, Query
-from dotenv import load_dotenv
 import os
 import sys
 import time
-import requests
 import re
 import json
-from fuzzywuzzy import fuzz
+import requests
+
+from dotenv import load_dotenv
 from geojson import Feature, Point
+from fuzzywuzzy import fuzz
+
+from flask import Flask, render_template, request
+from tinydb import TinyDB, Query
 
 app = Flask(__name__)
 db = TinyDB('db.json')
@@ -51,13 +53,13 @@ def process_update():
         update = request.get_json()
         if "message" in update:
             print('message!')
-            getTrainStation(update['message']['text'])
-            getTrainStationAdvanced(update['message']['text'])
+            improved_station_name = cleanseInput(update['message']['text'])
+            getTrainStation(improved_station_name)
         return "ok!", 200
 
 
-def getTrainStation(raw_message):
-    query = {'query': raw_message}
+def getTrainStation(preprocessed_message):
+    query = {'query': preprocessed_message['name']}
     r = requests.get('https://1.bvg.transport.rest/locations', params=query)
     print(r.url)
     # print(r.content)
@@ -68,13 +70,13 @@ def getTrainStation(raw_message):
         i = i + 1
     raw_station = data[i]
     if raw_station['type'] != "stop":
-        print('Could not find matching stop!')
+        raise ValueError('Could not find matching stop!')
         return
     print(raw_station)
     station_geometry = Point(
         (raw_station['location']['longitude'], raw_station['location']['latitude']))
     station = Feature(geometry=station_geometry, properties={
-                      'name': raw_station['name'], 'rawValue': raw_message})
+                      'name': raw_station['name'], 'rawValue': preprocessed_message['raw_message']})
     print('inserting: ', station)
 
     data = {}
@@ -83,7 +85,7 @@ def getTrainStation(raw_message):
     db.insert(data)
 
 
-def getTrainStationAdvanced(raw_message):
+def cleanseInput(raw_message):
     test1 = "Uhlanstr"
     test2 = "3 männlich gelesene Kontrolleure Yorckstraße U7 ausgestiegen"
     print("ratio: ", fuzz.token_set_ratio(test1, test2))
@@ -91,8 +93,8 @@ def getTrainStationAdvanced(raw_message):
     match = re.search(regex, raw_message)
     # import pdb; pdb.set_trace()
     if not match:
-        print('Could not find line in raw message!')
-        return
+        raise ValueError('Could not find line in raw message!')
+        return raw_message
     line = match.group(0)
 
     # transform to upper case
@@ -101,18 +103,17 @@ def getTrainStationAdvanced(raw_message):
     data_path = "./data/lines.json"
     with open(data_path) as file:
         static_data = json.load(file)
-    stops = static_data[line]
+    stations = static_data[line]
 
-    scores_for_stops = []
-    for stop in stops:
-        score = fuzz.token_set_ratio(stop, raw_message)
-        scores_for_stops.append({'name': stop, 'score': score})
-    scores_for_stops.sort(reverse=True, key=lambda x: x['score'])
-    print(scores_for_stops[0])
-
-    # stop = re.sub('((M|U|S|m|u|s)\d+)', '', stop).strip()
+    scores_for_stations = []
+    for station in stations:
+        score = fuzz.token_set_ratio(station, raw_message)
+        scores_for_stations.append({'name': station, 'score': score, 'raw_message': raw_message})
+    scores_for_stations.sort(reverse=True, key=lambda x: x['score'])
+    result = scores_for_stations[0]
 
     print('line: ', line)
+    return result
 
 
 def handle_inspector(inspector):
