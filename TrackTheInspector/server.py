@@ -5,6 +5,9 @@ import os
 import sys
 import time
 import requests
+import re
+import json
+from fuzzywuzzy import fuzz
 from geojson import Feature, Point
 
 app = Flask(__name__)
@@ -46,6 +49,7 @@ def process_update():
 		if "message" in update:
 			print('message!')
 			getTrainStation(update['message']['text'])
+			getTrainStationAdvanced(update['message']['text'])
 		return "ok!", 200
 
 def getTrainStation(raw_message):
@@ -54,11 +58,14 @@ def getTrainStation(raw_message):
 	print(r.url)
 	# print(r.content)
 	data = r.json()
-	
+	# import pdb; pdb.set_trace()
 	i = 0
-	while data[i]['type'] != "stop":
+	while data[i]['type'] != "stop" and i < len(data) - 1:
 		i = i + 1
 	raw_station = data[i]
+	if raw_station['type'] != "stop":
+		print('Could not find matching stop!')
+		return 
 	print(raw_station )
 	station_geometry = Point((raw_station['location']['longitude'], raw_station['location']['latitude']))
 	station = Feature(geometry=station_geometry, properties={'name': raw_station['name'], 'rawValue': raw_message})
@@ -68,6 +75,39 @@ def getTrainStation(raw_message):
 	data['geoJson'] = station
 	data['timestamp'] = time.time()
 	db.insert(data)
+
+def getTrainStationAdvanced(raw_message):
+	test1 = "Uhlanstr"
+	test2 = "3 männlich gelesene Kontrolleure Yorckstraße U7 ausgestiegen"
+	print("ratio: ", fuzz.token_set_ratio(test1, test2))
+	regex = '((M|U|S|m|u|s)\d+)'
+	match = re.search(regex, raw_message)
+	# import pdb; pdb.set_trace()
+	if not match:
+		print('Could not find line in raw message!')
+		return;	
+	line = match.group(0)
+
+	# transform to upper case
+	line = line.upper()
+
+	data_path = "./data/lines.json"
+	with open(data_path) as file:
+		static_data = json.load(file)
+	stops = static_data[line]
+
+	scores_for_stops = []
+	for stop in stops:
+		score = fuzz.token_set_ratio(stop, raw_message)
+		scores_for_stops.append({'name': stop, 'score': score})
+	scores_for_stops.sort(reverse=True, key=lambda x: x['score'])
+	print(scores_for_stops[0])
+
+	# stop = re.sub('((M|U|S|m|u|s)\d+)', '', stop).strip()
+	
+	print('line: ', line)
+
+
 
 
 def handle_inspector(inspector):
