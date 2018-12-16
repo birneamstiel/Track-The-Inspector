@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from geojson import Feature, Point
 from fuzzywuzzy import fuzz
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from tinydb import TinyDB, Query
 
 this_directory = os.path.dirname(__file__)
@@ -59,6 +59,12 @@ def process_update():
         return "ok!", 200
 
 
+@app.route('/db')
+def get_database():
+    with open(db_path, encoding="utf-8") as file:
+        return jsonify(json.load(file))
+
+
 def getTrainStation(preprocessed_message):
     query = {'query': preprocessed_message['name']}
     r = requests.get('https://1.bvg.transport.rest/locations', params=query)
@@ -101,7 +107,6 @@ def cleanseInput(raw_message):
     # transform to upper case
     line = line.upper()
 
-
     data_path = os.path.join(this_directory, './data/lines.json')
     with open(data_path, encoding="utf-8") as file:
         static_data = json.load(file)
@@ -110,7 +115,8 @@ def cleanseInput(raw_message):
     scores_for_stations = []
     for station in stations:
         score = fuzz.token_set_ratio(station, raw_message)
-        scores_for_stations.append({'name': station, 'score': score, 'raw_message': raw_message})
+        scores_for_stations.append(
+            {'name': station, 'score': score, 'raw_message': raw_message})
     scores_for_stations.sort(reverse=True, key=lambda x: x['score'])
     result = scores_for_stations[0]
 
