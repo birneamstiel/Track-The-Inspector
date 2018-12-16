@@ -101,7 +101,7 @@ def cleanseInput(raw_message):
 
 
     data_path = os.path.join(this_directory, './data/lines.json')
-    with open(data_path) as file:
+    with open(data_path, encoding="utf-8") as file:
         static_data = json.load(file)
     stations = static_data[line]
 
