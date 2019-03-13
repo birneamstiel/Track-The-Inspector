@@ -92,9 +92,6 @@ def getTrainStation(preprocessed_message):
 
 
 def cleanseInput(raw_message):
-    test1 = "Uhlanstr"
-    test2 = "3 männlich gelesene Kontrolleure Yorckstraße U7 ausgestiegen"
-    print("ratio: ", fuzz.token_set_ratio(test1, test2))
     regex = '((M|U|S|m|u|s)\d+)'
     match = re.search(regex, raw_message)
     # import pdb; pdb.set_trace()
