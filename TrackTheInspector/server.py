@@ -54,7 +54,8 @@ def process_update():
         update = request.get_json()
         if "message" in update and "text" in update['message']:
             improved_station_name = cleanseInput(update['message']['text'])
-            getTrainStation(improved_station_name)
+            if improved_station_name is not None:
+                getTrainStation(improved_station_name)
         return "ok!", 200
 
 
@@ -98,7 +99,7 @@ def cleanseInput(raw_message):
     # import pdb; pdb.set_trace()
     if not match:
         # raise Could not find line in raw message!
-        return raw_message
+        return None
     line = match.group(0)
 
     # transform to upper case
