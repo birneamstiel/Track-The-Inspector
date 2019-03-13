@@ -52,7 +52,7 @@ def get_inspectors():
 def process_update():
     if request.method == "POST":
         update = request.get_json()
-        if "message" in update and "text" in update['mesage']:
+        if "message" in update and "text" in update['message']:
             improved_station_name = cleanseInput(update['message']['text'])
             getTrainStation(improved_station_name)
         return "ok!", 200
