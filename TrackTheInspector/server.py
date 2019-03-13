@@ -92,17 +92,19 @@ def getTrainStation(preprocessed_message):
 
 
 def cleanseInput(raw_message):
+    # try to find line number in raw_mewssage
     regex = '((M|U|S|m|u|s)\d+)'
     match = re.search(regex, raw_message)
     # import pdb; pdb.set_trace()
     if not match:
-        raise ValueError('Could not find line in raw message!')
+        # raise Could not find line in raw message!
         return raw_message
     line = match.group(0)
 
     # transform to upper case
     line = line.upper()
 
+    # fuzzy search for all stops of the metro line in raw_message
     data_path = os.path.join(this_directory, './data/lines.json')
     with open(data_path, encoding="utf-8") as file:
         static_data = json.load(file)
